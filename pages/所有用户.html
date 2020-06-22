@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>所有用户</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    .wrapper p img {
+      width: 40px;
+      border-radius: 50%;
+    }
+
+    .wrapper div {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .wrapper p {
+      width: 200px;
+      display: flex;
+      align-items: center;
+      height: 80px;
+      outline: 1px solid red;
+    }
+
+    .btn {
+      height: 80px;
+      border: 0;
+      width: 150px;
+      text-align: center;
+      color: white;
+      background-color: turquoise;
+      outline: 1px solid red;
+      cursor: pointer;
+    }
+
+    .box {
+      width: 500px;
+      background-color: yellowgreen;
+    }
+
+    .wrapper p span {
+      display: block;
+      height: 40px;
+      line-height: 40px;
+      padding-right: 30px;
+    }
+
+    .wrap {
+      position: absolute;
+      top: 0;
+      left: 500px;
+      width: 400px;
+      height: 700px;
+      background-color: tomato;
+
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+
+  </div>
+  <div class="wrap">
+    <h2>申请处理</h2>
+    <ul class="content">
+
+      <!-- <li>
+        <p>
+          <span><img src="" alt=""></span>
+          <span></span>
+        </p>
+        <p class="buttn">
+          <button value="1" class="agree">同意</button>
+          <button value="2" class="disagree">拒绝</button>
+          <button value="3" class="noaccept">不在接受申请</button>
+        </p>
+      </li> -->
+
+
+    </ul>
+  </div>
+  <div class="frien">
+    <h1>好友</h1>
+    <div class="friend">
+
+    </div>
+
+  </div>
+
+  <div class="re">
+    <h1>登出微信</h1>
+  </div>
+  <style>
+    
+  </style>
+  <div class="main"></div>
+</body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="../js/cook.js"></script>
+<script>
+  $(function () {
+    console.log(JSON.parse(getCookie('user')))
+
+    var sign_str = JSON.parse(getCookie('user')).sign_str
+    var id = JSON.parse(getCookie('user')).id
+
+
+
+    // 获取所有用户
+    $.ajax({
+      url: 'http://118.24.25.7/chat_api/interface/getOnlineUsers.php',
+      type: 'post',
+      data: {
+        sign_str: sign_str,
+        user_id: id
+      },
+      //请求成功
+      success: function (data) {
+        console.log(data);
+        console.log(data.data, 5555);
+
+
+        //将全部用户渲染到页面   获取所有用户
+        var str1 = ''
+        $.each(data.data, function (index, value) {
+          str1 += `
+              <div class='box'>
+                <p> <span><img src='http://118.24.25.7/chat_api/${value.head_logo}'></span> <span>${value.nickname}</span></p>
+                <button class='btn'>添加好友</button>
+                <input type='text' value='${value.user_id}' class='inp' >
+              </div>
+          `
+          $('.wrapper').html(str1)
+
+
+        })
+
+        //点击对应按钮拿到对应好友的id值    申请好友
+        $('.btn').each(function (i) {
+
+          //点击添加好友
+          $('.btn').eq(i).click(function () {
+
+            console.log($('.inp').eq(i).val());
+
+            var friend_user_id = $('.inp').eq(i).val()
+
+
+            $.ajax({
+              url: 'http://118.24.25.7/chat_api/interface/addFriend.php',
+              type: 'post',
+              data: {
+                sign_str: sign_str,
+                user_id: id,
+                friend_user_id: friend_user_id
+              },
+              success: function (data) {
+                console.log(data, 189);
+                // $('.btn').eq(i).text(data.msg)
+              },
+              error: function (err) {
+                console.log(err);
+
+              }
+            })
+          })
+        })
+
+      },
+      //请求错误
+      error: function (err) {
+        console.log(err);
+
+      }
+    })
+
+
+    // // 获取好友申请
+    // $.ajax({
+    //   url: 'http://118.24.25.7/chat_api/interface/getFriendRequests.php',
+    //   type: 'get',
+    //   data: {
+    //     sign_str: sign_str,
+    //     user_id: id
+    //   },
+    //   success: function (data) {
+
+    //     console.log(data, '好友的申请');
+
+
+    //     // 
+    //     //   var friend = ''
+    //     //   $.each(data.data, function (index, value) {
+    //     //     console.log(value);
+
+    //     //     friend += `
+    //     //         <li>
+    //     //           <p>
+    //     //             <span><img src="http://118.24.25.7/chat_api/${value.head_logo}" alt=""></span>
+    //     //             <span>${value.nickname}</span>
+    //     //           </p>
+    //     //           <p class='buttn'>
+    //     //             <button value="1" class="agree">同意</button>
+    //     //             <button value="2" class="disagree">拒绝</button>
+    //     //             <button value="3" class="noaccept">不在接受申请</button>
+    //     //           </p>
+    //     //         </li>
+
+    //     //     `
+    //     //     $('.content').html(friend)
+
+
+    //     //     var from_user_id = value.user_id;
+    //     //     var request_id = value.request_id;
+    //     //     var process_result = 0
+
+    //     //     // 获取同意  拒绝  不接受按钮的值
+    //     //     $('.buttn button').each(function (i) {
+
+
+
+    //     //       $('.buttn button').eq(i).click(function () {
+    //     //         console.log(777777);
+    //     //         if ($('.buttn button').eq(i).val() == 1) {
+    //     //           process_result = 1;
+
+    //     //         } else if ($('.buttn button').eq(i).val() == 2) {
+    //     //           process_result = 2
+
+    //     //         } else {
+    //     //           process_result = 3
+
+    //     //         }
+    //     //         console.log(process_result, '按钮值');
+
+
+    //     //         //处理好友申请
+    //     //         $.ajax({
+    //     //           url: 'http://118.24.25.7/chat_api/interface/processFriendRequest.php',
+    //     //           type: 'post',
+    //     //           data: {
+    //     //             sign_str: sign_str,
+    //     //             user_id: id,
+    //     //             from_user_id: from_user_id,
+    //     //             request_id: request_id,
+    //     //             process_result: process_result
+    //     //           },
+    //     //           success: function (data) {
+    //     //             console.log(data);
+    //     //             alert('处理成功')
+
+    //     //           },
+    //     //           error: function (err) {
+    //     //             console.log(err);
+
+    //     //           }
+    //     //         })
+
+
+    //     //       })
+
+    //     //     })
+
+    //     //   })
+    //   },
+    //   error: function (er) {
+    //     console.log(er);
+
+    //   }
+    // })
+
+
+
+    // ====================================================================================================
+
+
+    var url = 'http://118.24.25.7/chat_api/interface/getFriendRequests.php'
+    var type = 'get'
+    var data = {
+      sign_str: sign_str,
+      user_id: id
+    }
+
+    // 长轮询
+    function longLoop(url, type, data, callback) {
+      $.ajax({
+        url: url,
+        type: type,
+        dataType: 'json',
+        timeout: 1000 * 115,
+        data: data,
+        success(data) {
+          callback(data)
+          // setTimeout(callback(data),5000)
+        },
+        error(err) {
+          console.log(err);
+
+        }
+        // ,
+        // complete() {
+        //   longLoop(url, type, data, callback)
+        // }
+      })
+    }
+
+
+
+
+
+
+
+
+    // //调用轮询
+
+    setInterval(
+      longLoop(url, type, data, function (data) {
+        console.log(data.data);
+        console.log(7890);
+
+
+        var friend = ''
+        $.each(data.data, function (index, value) {
+          console.log(value);
+
+          friend += `
+              <li>
+                <p>
+                  <span><img src="http://118.24.25.7/chat_api/${value.head_logo}" alt=""></span>
+                  <span>${value.nickname}</span>
+                </p>
+                <p class='buttn'>
+                  <button value="1" class="agree">同意</button>
+                  <button value="2" class="disagree">拒绝</button>
+                  <button value="3" class="noaccept">不在接受申请</button>
+                </p>
+              </li>
+
+          `
+          $('.content').html(friend)
+
+
+          var from_user_id = value.user_id;
+          var request_id = value.request_id;
+          var process_result = 0
+
+          // 获取同意  拒绝  不接受按钮的值
+          $('.buttn button').each(function (i) {
+
+            $('.buttn button').eq(i).click(function () {
+              console.log(777777);
+              if ($('.buttn button').eq(i).val() == 1) {
+                process_result = 1;
+
+              } else if ($('.buttn button').eq(i).val() == 2) {
+                process_result = 2
+
+              } else {
+                process_result = 3
+
+              }
+              console.log(process_result, '按钮值');
+
+
+              //处理好友申请
+              $.ajax({
+                url: 'http://118.24.25.7/chat_api/interface/processFriendRequest.php',
+                type: 'post',
+                data: {
+                  sign_str: sign_str,
+                  user_id: id,
+                  from_user_id: from_user_id,
+                  request_id: request_id,
+                  process_result: process_result
+                },
+                success: function (data) {
+                  console.log(data);
+                  alert('处理成功')
+                },
+                error: function (err) {
+                  console.log(err);
+
+                }
+              })
+
+
+            })
+
+          })
+
+        })
+
+      })
+
+      , 1000)
+
+
+
+
+
+    // 获取好友列表
+    $.ajax({
+      url: 'http://118.24.25.7/chat_api/interface/getFriends.php',
+      type: 'get',
+      dataType: 'json',
+      data: {
+        sign_str: sign_str,
+        user_id: id
+      },
+      success(data) {
+        console.log(3434);
+
+        console.log(data);
+        var people = ''
+        $.each(data.data, function (index, val) {
+          people += `
+            <p> <span><img src='http://118.24.25.7/chat_api/${val.head_logo}'></span> <span>${val.nickname}</span></p>
+            <button class='del'>删除好友</button>
+            <input type='text' value='${val.user_id}' class='inp_del'>
+            `
+          $('.friend').html(people)
+
+          //发送消息
+          $.ajax({
+            url: 'http://118.24.25.7/chat_api/interface/sendMessage.php',
+            type: 'post',
+            data: {
+              sign_str: sign_str,
+              user_id: id,
+              receive_user_id: 45,
+              message: '这个娃儿，你好，过来搞事情！'
+            },
+            success(data) {
+              console.log(data);
+
+            },
+            error(err) {
+              console.log(err);
+
+            }
+          })
+
+          //接收消息
+          $.ajax({
+            url: 'http://118.24.25.7/chat_api/interface/getMessages.php',
+            type: 'get',
+            data: {
+              sign_str: sign_str,
+              user_id: id
+            },
+            success(data) {
+              console.log(data);
+
+            },
+            error(err) {
+              console.log(err);
+
+            }
+          })
+
+
+          //删除好友
+          $('.del').each(function (i) {
+            $('.del').eq(i).click(function () {
+
+
+              var friend_id = $('.inp_del').eq(i).val()
+              var r = confirm('确定要删除！')
+
+              if (r) {
+                $.ajax({
+                  url: 'http://118.24.25.7/chat_api/interface/removeFriend.php',
+                  type: 'post',
+                  data: {
+                    sign_str: sign_str,
+                    user_id: id,
+                    friend_id: friend_id
+                  },
+                  success(data) {
+                    console.log(data);
+                  },
+                  error(err) {
+                    console.log(err);
+                  }
+                })
+              } else {
+                console.log(1);
+                return false;
+              }
+
+            })
+          })
+
+
+
+        })
+
+
+
+      },
+      error(err) {
+        console.log(err);
+
+      }
+
+    })
+
+
+
+
+    //退出
+    $('.re h1').click(function () {
+      var r = confirm('确定退出！')
+      if (r) {
+        $.ajax({
+          url: 'http://118.24.25.7/chat_api/interface/logout.php',
+          type: 'post',
+          data: {
+            sign_str: sign_str,
+            user_id: id
+          },
+          success(data) {
+            console.log(data);
+            window.location.href = '../index.html'
+          },
+          error(err) {
+            console.log(err);
+          }
+        })
+      } else {
+        console.log(5);
+        return false;
+      }
+    })
+
+
+
+
+
+  })
+</script>
+
+</html>
